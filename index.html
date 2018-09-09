@@ -10,7 +10,14 @@
 	<style>
 		body {
             text-align:center;
+			font-size:16px;
         }
+		input {
+			font-size:16px;
+		}
+		input[type="text"] {
+			width:60px;
+		}
         .counter {
             font-size:100px;
         }
@@ -71,15 +78,15 @@
 		</div>
 		<div>
 			<label for="intCaloriesPerDay">Calories Per Day:</label>
-			<input id="intCaloriesPerDay" name="intCaloriesPerDay"/>
+			<input type="text" id="intCaloriesPerDay" name="intCaloriesPerDay"/>
 		</div>
 		<div>
 			<label for="intCalorieStartHour">Starting hour for Calories:</label>
-			<input id="intCalorieStartHour" name="intCalorieStartHour"/>
+			<input type="text" id="intCalorieStartHour" name="intCalorieStartHour"/>
 		</div>
 		<div>
 			<label for="intCalorieEndHour">Ending hour for Calories:</label>
-			<input id="intCalorieEndHour" name="intCalorieEndHour"/>
+			<input type="text" id="intCalorieEndHour" name="intCalorieEndHour"/>
 		</div>
 		<br/>
 		<button id="reset">reset</button>
