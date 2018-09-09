@@ -36,6 +36,7 @@
 		<div id="messages"></div>
 	
 		<div id="calories" class="counter"></div>
+		<div id="calorie-percent"></div>
 		<button class="calorie_button">-</button>
 		<input id='calorie_interval' style="text-align:center;" type="text" size="10" value="150" />
 		<button class="calorie_button">+</button>
@@ -56,7 +57,7 @@
 			<button class="water_button">+</button>
 		</div>
 		<br/><br/>
-		<div id="percent-container">
+		<div id="day-percent-container">
 			<div id="percent"></div>
 		</div>
 	</div>
@@ -75,6 +76,10 @@
 		<div>
 			<input type="checkbox" id="bShowDayPercent" name="bShowDayPercent"/>
 			<label for="bShowDayPercent">Show Day Percent</label>
+		</div>
+		<div>
+			<input type="checkbox" id="bShowCaloriePercent" name="bShowCaloriePercent"/>
+			<label for="bShowCaloriePercent">Show Calorie Percent And Amount</label>
 		</div>
 		<div>
 			<label for="intCaloriesPerDay">Calories Per Day:</label>
@@ -123,6 +128,7 @@
 			this.bShowCaffeine = false;
 			this.bShowWater = true;
 			this.bShowDayPercent = false;
+			this.bShowCaloriePercent = false;
 			this.intCaloriesPerDay = 1900;
 			this.intCalorieStartHour = 7;
 			this.intCalorieEndHour = 19;
@@ -146,6 +152,7 @@
 			H.bShowCaffeine = $('#bShowCaffeine').is(':checked');
 			H.bShowWater = $('#bShowWater').is(':checked');
 			H.bShowDayPercent = $('#bShowDayPercent').is(':checked');
+			H.bShowCaloriePercent = $('#bShowCaloriePercent').is(':checked');
 			H.intCaloriesPerDay = parseInt($('#intCaloriesPerDay').val());
 			H.intCalorieStartHour = parseInt($('#intCalorieStartHour').val());
 			H.intCalorieEndHour = parseInt($('#intCalorieEndHour').val());
@@ -170,6 +177,13 @@
 			cal.html(calories_left);
 			if (calories_left < 0) cal.css('color', 'red');
 			else cal.css('color', 'green');
+			
+			if(H.bShowCaloriePercent) {
+				let flCaloriePercent = Math.round(H.current_calories / H.intCaloriesPerDay * 10000) / 100;
+				$('#calorie-percent').show().html('('+flCaloriePercent+'% / '+H.current_calories+'cal)<br/><br/>');
+			} else {
+				$('#calorie-percent').hide();
+			}
 			
 			// water
 			if(H.bShowWater) {
@@ -203,10 +217,10 @@
 			
 			// percentage
 			if(H.bShowDayPercent) {
-				$('#percent-container').show();
+				$('#day-percent-container').show();
 				$('#percent').html((Math.round(percent(H.intCalorieStartHour, H.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
 			} else {
-				$('#percent-container').hide();
+				$('#day-percent-container').hide();
 			}
 		}
 	}
@@ -245,6 +259,7 @@
 				$('#bShowWater').prop('checked', H.bShowWater).change(H.setOptions);
 				$('#bShowCaffeine').prop('checked', H.bShowCaffeine).change(H.setOptions);
 				$('#bShowDayPercent').prop('checked', H.bShowDayPercent).change(H.setOptions);
+				$('#bShowCaloriePercent').prop('checked', H.bShowCaloriePercent).change(H.setOptions);
 				$('#intCaloriesPerDay').val(H.intCaloriesPerDay).change(H.setOptions);
 				$('#intCalorieStartHour').val(H.intCalorieStartHour).change(H.setOptions);
 				$('#intCalorieEndHour').val(H.intCalorieEndHour).change(H.setOptions);
