@@ -79,7 +79,7 @@
 		</div>
 		<div>
 			<input type="checkbox" id="bShowCaloriePercent" name="bShowCaloriePercent"/>
-			<label for="bShowCaloriePercent">Show Calorie Percent And Amount</label>
+			<label for="bShowCaloriePercent">Show Calorie Amount and Percent</label>
 		</div>
 		<div>
 			<label for="intCaloriesPerDay">Calories Per Day:</label>
@@ -180,7 +180,7 @@
 			
 			if(H.bShowCaloriePercent) {
 				let flCaloriePercent = Math.round(H.current_calories / H.intCaloriesPerDay * 10000) / 100;
-				$('#calorie-percent').show().html('('+flCaloriePercent+'% / '+H.current_calories+'cal)<br/><br/>');
+				$('#calorie-percent').show().html('('+H.current_calories+' / '+H.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
 			} else {
 				$('#calorie-percent').hide();
 			}
