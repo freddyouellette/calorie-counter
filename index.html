@@ -119,7 +119,7 @@
 	}
 
 	class Data {
-		constructor() {
+		constructor(reset = false) {
 			this.day = new Date();
 			this.current_calories = 0;
 			this.current_water = 0;
@@ -132,6 +132,71 @@
 			this.intCaloriesPerDay = 1900;
 			this.intCalorieStartHour = 7;
 			this.intCalorieEndHour = 19;
+			this.intIntervalMilliseconds = 1000;
+			
+			this.save = this.save.bind(this);
+			this.setOptions = this.setOptions.bind(this);
+			this.update = this.update.bind(this);
+			this.reset = this.reset.bind(this);
+			
+			if(reset) {
+				$.ajax({
+					type: 'POST',
+					url: 'data.php',
+					data: {
+						'load': true
+					},
+					success: function (data) {
+						data = JSON.parse(data);
+						if (data !== 'false') {
+							Object.assign(this, data);
+						} else {
+							message('new session');
+						}
+					}
+				})
+			}
+			
+			this.update();
+			this.save();
+			
+			$('#bShowWater').prop('checked', this.bShowWater).change(this.setOptions);
+			$('#bShowCaffeine').prop('checked', this.bShowCaffeine).change(this.setOptions);
+			$('#bShowDayPercent').prop('checked', this.bShowDayPercent).change(this.setOptions);
+			$('#bShowCaloriePercent').prop('checked', this.bShowCaloriePercent).change(this.setOptions);
+			$('#intCaloriesPerDay').val(this.intCaloriesPerDay).change(this.setOptions);
+			$('#intCalorieStartHour').val(this.intCalorieStartHour).change(this.setOptions);
+			$('#intCalorieEndHour').val(this.intCalorieEndHour).change(this.setOptions);
+			
+			$(document).on('click', '.calorie_button', function () {
+				if ($(this).html() === '-') {
+					this.current_calories -= parseInt($('#calorie_interval').val());
+				}
+				else this.current_calories += parseInt($('#calorie_interval').val());
+				this.save();
+				this.update();
+			});
+
+			$(document).on('click', '.water_button', function () {
+				let amount = LITTLE_DRINK;
+				if ($(this).html().includes('-')) amount = -amount;
+				this.current_water += amount;
+				this.save();
+				this.update();
+			});
+
+			$(document).on('click', '.caff_button', function () {
+				let amount = 50;
+				if ($(this).html().includes('U')) amount = CAFF_IN_SHOT;
+				if ($(this).html().includes('-')) amount = -amount;
+				this.current_caffeine += amount;
+				this.save();
+				this.update();
+			});
+			
+			$(document).on('click', '#reset', this.reset);
+			
+			window.setInterval(this.update, this.intIntervalMilliseconds);
 		}
 		
 		save() {
@@ -148,50 +213,57 @@
 			});
 		}
 		
+		reset() {
+			if (confirm('reset?')) {
+				this.constructor(true);
+				message('reset', 'red');
+			}
+		}
+		
 		setOptions() {
-			H.bShowCaffeine = $('#bShowCaffeine').is(':checked');
-			H.bShowWater = $('#bShowWater').is(':checked');
-			H.bShowDayPercent = $('#bShowDayPercent').is(':checked');
-			H.bShowCaloriePercent = $('#bShowCaloriePercent').is(':checked');
-			H.intCaloriesPerDay = parseInt($('#intCaloriesPerDay').val());
-			H.intCalorieStartHour = parseInt($('#intCalorieStartHour').val());
-			H.intCalorieEndHour = parseInt($('#intCalorieEndHour').val());
-			H.save();
-			H.update();
+			this.bShowCaffeine = $('#bShowCaffeine').is(':checked');
+			this.bShowWater = $('#bShowWater').is(':checked');
+			this.bShowDayPercent = $('#bShowDayPercent').is(':checked');
+			this.bShowCaloriePercent = $('#bShowCaloriePercent').is(':checked');
+			this.intCaloriesPerDay = parseInt($('#intCaloriesPerDay').val());
+			this.intCalorieStartHour = parseInt($('#intCalorieStartHour').val());
+			this.intCalorieEndHour = parseInt($('#intCalorieEndHour').val());
+			this.save();
+			this.update();
 		}
 		
 		update() {
-			if (new Date(H.day).toDateString()
+			if (new Date(this.day).toDateString()
 				!== new Date().toDateString()) {
-				H.day = new Date();
-				H.current_calories = 0;
-				H.current_water = 0;
+				this.day = new Date();
+				this.current_calories = 0;
+				this.current_water = 0;
 			}
 			
 			// calories
 			let cal = $("#calories");
 			let calories_left = Math.round(
-				(Math.round(percent(H.intCalorieStartHour, H.intCalorieEndHour) * H.intCaloriesPerDay) / 100
-					- H.current_calories) * 100) / 100;
+				(Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * this.intCaloriesPerDay) / 100
+					- this.current_calories) * 100) / 100;
 			calories_left = calories_left.toFixed(2);
 			cal.html(calories_left);
 			if (calories_left < 0) cal.css('color', 'red');
 			else cal.css('color', 'green');
 			
-			if(H.bShowCaloriePercent) {
-				let flCaloriePercent = Math.round(H.current_calories / H.intCaloriesPerDay * 10000) / 100;
-				$('#calorie-percent').show().html('('+H.current_calories+' / '+H.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
+			if(this.bShowCaloriePercent) {
+				let flCaloriePercent = Math.round(this.current_calories / this.intCaloriesPerDay * 10000) / 100;
+				$('#calorie-percent').show().html('('+this.current_calories+' / '+this.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
 			} else {
 				$('#calorie-percent').hide();
 			}
 			
 			// water
-			if(H.bShowWater) {
+			if(this.bShowWater) {
 				let water = $('#water');
 				$('#water-container').show();
 				let water_left = Math.round(Math.round(0 - percent(WATER_START, WATER_END)
 					* (WATER_PER_DAY * 1000))
-					+ H.current_water * 100) / 100;
+					+ this.current_water * 100) / 100;
 				water_left = water_left.toFixed(2);
 				water.html(water_left);
 				if (water_left < 0) water.css('color', 'red');
@@ -202,11 +274,11 @@
 			
 			// caffeine
 			let caff = $('#caffeine');
-			if(H.bShowCaffeine) {
+			if(this.bShowCaffeine) {
 				$('#caffeine-container').show();
 				let caffeine_left = Math.round(
 						(-Math.round(percent(CAFF_START, CAFF_END) * CAFFEINE_PER_DAY) / 100
-						+ H.current_caffeine) * 100 ) / 100;
+						+ this.current_caffeine) * 100 ) / 100;
 				caffeine_left = caffeine_left.toFixed(2);
 				caff.html(caffeine_left);
 				if (caffeine_left < 0) caff.css('color', 'red');
@@ -216,9 +288,9 @@
 			}
 			
 			// percentage
-			if(H.bShowDayPercent) {
+			if(this.bShowDayPercent) {
 				$('#day-percent-container').show();
-				$('#percent').html((Math.round(percent(H.intCalorieStartHour, H.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
+				$('#percent').html((Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
 			} else {
 				$('#day-percent-container').hide();
 			}
@@ -237,72 +309,8 @@
 		return p;
 	}
 	
-	$(function () {
-		$.ajax({
-			type: 'POST',
-			url: 'data.php',
-			data: {
-				'load': true
-			},
-			success: function (data) {
-				data = JSON.parse(data);
-				H = new Data();
-				if (data !== 'false') {
-					Object.assign(H, data);
-					H.update();
-				}
-				else {
-					message('new session');
-				}
-				H.save();
-				
-				$('#bShowWater').prop('checked', H.bShowWater).change(H.setOptions);
-				$('#bShowCaffeine').prop('checked', H.bShowCaffeine).change(H.setOptions);
-				$('#bShowDayPercent').prop('checked', H.bShowDayPercent).change(H.setOptions);
-				$('#bShowCaloriePercent').prop('checked', H.bShowCaloriePercent).change(H.setOptions);
-				$('#intCaloriesPerDay').val(H.intCaloriesPerDay).change(H.setOptions);
-				$('#intCalorieStartHour').val(H.intCalorieStartHour).change(H.setOptions);
-				$('#intCalorieEndHour').val(H.intCalorieEndHour).change(H.setOptions);
-				
-				window.setInterval(function () {
-					H.update();
-				}, INTERVAL_MILLISECONDS);
-			}
-		})
-	});
-
-	$(document).on('click', '.calorie_button', function () {
-		if ($(this).html() === '-') {
-			H.current_calories -= parseInt($('#calorie_interval').val());
-		}
-		else H.current_calories += parseInt($('#calorie_interval').val());
-		H.save();
-		H.update();
-	});
-
-	$(document).on('click', '.water_button', function () {
-		let amount = LITTLE_DRINK;
-		if ($(this).html().includes('-')) amount = -amount;
-		H.current_water += amount;
-		H.save();
-		H.update();
-	});
-
-	$(document).on('click', '.caff_button', function () {
-		let amount = 50;
-		if ($(this).html().includes('U')) amount = CAFF_IN_SHOT;
-		if ($(this).html().includes('-')) amount = -amount;
-		H.current_caffeine += amount;
-		H.save();
-		H.update();
-	});
-
-	$(document).on('click', '#reset', function () {
-		if (confirm('reset?')) {
-			H = new Data();
-			H.save();
-			message('reset', 'red');
-		}
+	$(function() {
+		H = new Data();
 	});
 </script>
 
