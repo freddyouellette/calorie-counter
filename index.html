@@ -171,17 +171,13 @@
 			
 			if(typeof Storage !== 'undefined') {
 				// local storage is available for this browser.
-				if(reset) {
-					localStorage.health = false;
-				} else {
-					if(typeof localStorage.health !== 'undefined') {
-						// found a record for this storage.
-						var data = JSON.parse(localStorage.health);
-						if(data !== 'false') {
-							Object.assign(this, data);
-						} else {
-							message('new session');
-						}
+				if(typeof localStorage.health !== 'undefined') {
+					// found a record for this storage.
+					var data = JSON.parse(localStorage.health);
+					if(data !== 'false') {
+						Object.assign(this, data);
+					} else {
+						message('new session');
 					}
 				}
 			} else {
