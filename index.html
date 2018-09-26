@@ -6,7 +6,7 @@
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<script src="jquery.js"></script>
-	<title>H</title>
+	<title>freddyouellette/calorie-counter</title>
 	<style>
 		body {
             text-align:center;
@@ -34,23 +34,26 @@
 <body>
 	<div id="main" style="min-height:100vh;">
 		<div id="messages"></div>
-	
+		
+		<div class="label">Calories:</div>
 		<div id="calories" class="counter"></div>
 		<div id="calorie-percent"></div>
 		<button class="calorie_button">-</button>
 		<input id='calorie_interval' style="text-align:center;" type="text" size="10" value="150" />
 		<button class="calorie_button">+</button>
 		<br>
-	
+		
 		<div id="caffeine-container">
+			<div class="label"><br/>Caffeine:</div>
 			<div id="caffeine" class="counter"></div>
-			<button class="caff_button">-50</button>
-			<button class="caff_button">-U</button>
-			<button class="caff_button">U</button>
-			<button class="caff_button">+50</button>
+			<button class="caff_button">-cup</button>
+			<button class="caff_button">-shot</button>
+			<button class="caff_button">+shot</button>
+			<button class="caff_button">+cup</button>
 		</div>
-	
+		
 		<div id="water-container">
+			<div class="label"><br/>Water:</div>
 			<div id="water" class="counter">
 			</div>
 			<button class="water_button">-</button>
@@ -66,52 +69,86 @@
 		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
 		<br/>
 		<div>
-			<input type="checkbox" id="bShowCaffeine" name="bShowCaffeine"/>
-			<label for="bShowCaffeine">Show Caffeine</label>
+			<input type="checkbox" id="bShowCalories" class="setting" name="bShowCalories"/>
+			<label for="bShowCalories">Show Calories</label>
 		</div>
 		<div>
-			<input type="checkbox" id="bShowWater" name="bShowWater"/>
-			<label for="bShowWater">Show Water</label>
-		</div>
-		<div>
-			<input type="checkbox" id="bShowDayPercent" name="bShowDayPercent"/>
-			<label for="bShowDayPercent">Show Day Percent</label>
-		</div>
-		<div>
-			<input type="checkbox" id="bShowCaloriePercent" name="bShowCaloriePercent"/>
+			<input type="checkbox" id="bShowCaloriePercent" class="setting" name="bShowCaloriePercent"/>
 			<label for="bShowCaloriePercent">Show Calorie Amount and Percent</label>
 		</div>
 		<div>
+			<input type="checkbox" id="bShowCaffeine" class="setting" name="bShowCaffeine"/>
+			<label for="bShowCaffeine">Show Caffeine</label>
+		</div>
+		<div>
+			<input type="checkbox" id="bShowWater" class="setting" name="bShowWater"/>
+			<label for="bShowWater">Show Water</label>
+		</div>
+		<div>
+			<input type="checkbox" id="bShowDayPercent" class="setting" name="bShowDayPercent"/>
+			<label for="bShowDayPercent">Show Day Percent</label>
+		</div>
+		<div>
+			<input type="checkbox" id="bShowLabels" class="setting" name="bShowLabels"/>
+			<label for="bShowLabels">Show Labels</label>
+		</div>
+		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+		<div>
 			<label for="intCaloriesPerDay">Calories Per Day:</label>
-			<input type="text" id="intCaloriesPerDay" name="intCaloriesPerDay"/>
+			<input type="text" id="intCaloriesPerDay" class="setting" name="intCaloriesPerDay"/>
 		</div>
 		<div>
 			<label for="intCalorieStartHour">Starting hour for Calories:</label>
-			<input type="text" id="intCalorieStartHour" name="intCalorieStartHour"/>
+			<input type="text" id="intCalorieStartHour" class="setting" name="intCalorieStartHour"/>
 		</div>
 		<div>
 			<label for="intCalorieEndHour">Ending hour for Calories:</label>
-			<input type="text" id="intCalorieEndHour" name="intCalorieEndHour"/>
+			<input type="text" id="intCalorieEndHour" class="setting" name="intCalorieEndHour"/>
 		</div>
+		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+		<div>
+			<label for="intCaffeinePerDay">Caffeine Per Day (milligrams):</label>
+			<input type="text" id="intCaffeinePerDay" class="setting" name="intCaffeinePerDay"/>
+		</div>
+		<div>
+			<label for="intCaffeineStartHour">Starting hour for Caffeine:</label>
+			<input type="text" id="intCaffeineStartHour" class="setting" name="intCaffeineStartHour"/>
+		</div>
+		<div>
+			<label for="intCaffeineEndHour">Ending hour for Caffeine:</label>
+			<input type="text" id="intCaffeineEndHour" class="setting" name="intCaffeineEndHour"/>
+		</div>
+		<div>
+			<label for="intCaffeineInShot">Caffeine in shot (milligrams):</label>
+			<input type="text" id="intCaffeineInShot" class="setting" name="intCaffeineInShot"/>
+		</div>
+		<div>
+			<label for="intCaffeineInCup">Caffeine in cup (milligrams):</label>
+			<input type="text" id="intCaffeineInCup" class="setting" name="intCaffeineInCup"/>
+		</div>
+		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+		<div>
+			<label for="intWaterPerDay">Water Per Day (litres):</label>
+			<input type="text" id="intWaterPerDay" class="setting" name="intWaterPerDay"/>
+		</div>
+		<div>
+			<label for="intWaterStartHour">Starting hour for Water:</label>
+			<input type="text" id="intWaterStartHour" class="setting" name="intWaterStartHour"/>
+		</div>
+		<div>
+			<label for="intWaterEndHour">Ending hour for Water:</label>
+			<input type="text" id="intWaterEndHour" class="setting" name="intWaterEndHour"/>
+		</div>
+		<div>
+			<label for="intWaterLittleDrink">Water in gulp (millilitres):</label>
+			<input type="text" id="intWaterLittleDrink" class="setting" name="intWaterLittleDrink"/>
+		</div>
+		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
 		<br/>
 		<button id="reset">reset</button>
 	</div>
 </body>
 <script>
-	let H;
-	const INTERVAL_MILLISECONDS = 1000;
-	
-
-	const CAFFEINE_PER_DAY = 250; // milligrams
-	const CAFF_START = 8;
-	const CAFF_END = 16;
-	const CAFF_IN_SHOT = 40; // milligrams of caffeine
-
-	const WATER_PER_DAY = 3; // litres
-	const WATER_START = 7;
-	const WATER_END = 22;
-	const LITTLE_DRINK = 40; // millilitres
-
 	function message(string, color = 'green') {
 		$('#messages').clearQueue().finish()
 			.html(string).css('background-color', color)
@@ -119,115 +156,118 @@
 	}
 
 	class Data {
-		constructor(reset = false) {
-			this.day = new Date();
-			this.current_calories = 0;
-			this.current_water = 0;
-			this.current_caffeine = 0;
-			
-			this.bShowCaffeine = false;
-			this.bShowWater = true;
-			this.bShowDayPercent = false;
-			this.bShowCaloriePercent = false;
-			this.intCaloriesPerDay = 1900;
-			this.intCalorieStartHour = 7;
-			this.intCalorieEndHour = 19;
-			this.intIntervalMilliseconds = 1000;
-			
+		constructor() {
 			this.save = this.save.bind(this);
-			this.setOptions = this.setOptions.bind(this);
+			this.setDefaults = this.setDefaults.bind(this);
+			this.setSettings = this.setSettings.bind(this);
+			this.updateSettings = this.updateSettings.bind(this);
 			this.update = this.update.bind(this);
 			this.reset = this.reset.bind(this);
+			this.handleCalorieButton = this.handleCalorieButton.bind(this);
+			this.handleWaterButton = this.handleWaterButton.bind(this);
+			this.handleCaffeineButton = this.handleCaffeineButton.bind(this);
 			
-			if(reset) {
-				$.ajax({
-					type: 'POST',
-					url: 'data.php',
-					data: {
-						'load': true
-					},
-					success: function (data) {
-						data = JSON.parse(data);
-						if (data !== 'false') {
+			this.setDefaults();
+			
+			if(typeof Storage !== 'undefined') {
+				// local storage is available for this browser.
+				if(reset) {
+					localStorage.health = false;
+				} else {
+					if(typeof localStorage.health !== 'undefined') {
+						// found a record for this storage.
+						var data = JSON.parse(localStorage.health);
+						if(data !== 'false') {
 							Object.assign(this, data);
 						} else {
 							message('new session');
 						}
 					}
-				})
+				}
+			} else {
+				message('Session saving is not available with this browser. Data will be local only to this one tab, and will be lost upon reloading.');
 			}
 			
 			this.update();
 			this.save();
+			this.setSettings();
 			
-			$('#bShowWater').prop('checked', this.bShowWater).change(this.setOptions);
-			$('#bShowCaffeine').prop('checked', this.bShowCaffeine).change(this.setOptions);
-			$('#bShowDayPercent').prop('checked', this.bShowDayPercent).change(this.setOptions);
-			$('#bShowCaloriePercent').prop('checked', this.bShowCaloriePercent).change(this.setOptions);
-			$('#intCaloriesPerDay').val(this.intCaloriesPerDay).change(this.setOptions);
-			$('#intCalorieStartHour').val(this.intCalorieStartHour).change(this.setOptions);
-			$('#intCalorieEndHour').val(this.intCalorieEndHour).change(this.setOptions);
-			
-			$(document).on('click', '.calorie_button', function () {
-				if ($(this).html() === '-') {
-					this.current_calories -= parseInt($('#calorie_interval').val());
-				}
-				else this.current_calories += parseInt($('#calorie_interval').val());
-				this.save();
-				this.update();
-			});
-
-			$(document).on('click', '.water_button', function () {
-				let amount = LITTLE_DRINK;
-				if ($(this).html().includes('-')) amount = -amount;
-				this.current_water += amount;
-				this.save();
-				this.update();
-			});
-
-			$(document).on('click', '.caff_button', function () {
-				let amount = 50;
-				if ($(this).html().includes('U')) amount = CAFF_IN_SHOT;
-				if ($(this).html().includes('-')) amount = -amount;
-				this.current_caffeine += amount;
-				this.save();
-				this.update();
-			});
-			
-			$(document).on('click', '#reset', this.reset);
+			$('.calorie_button').click(this.handleCalorieButton);
+			$('.water_button').click(this.handleWaterButton);
+			$('.caff_button').click(this.handleCaffeineButton);
+			$('.setting').change(this.updateSettings);
+			$('#reset').click(this.reset);
 			
 			window.setInterval(this.update, this.intIntervalMilliseconds);
 		}
 		
+		setDefaults() {
+			this.day = new Date();
+			this.current_calories = 0;
+			this.current_water = 0;
+			this.current_caffeine = 0;
+			
+			// set defaults
+			this.bShowCalories = true;
+			this.bShowLabels = true;
+			this.bShowCaffeine = false;
+			this.bShowWater = true;
+			this.bShowDayPercent = false;
+			this.bShowCaloriePercent = false;
+			this.intIntervalMilliseconds = 1000;
+			
+			this.intCaloriesPerDay = 1900;
+			this.intCalorieStartHour = 7;
+			this.intCalorieEndHour = 19;
+			
+			this.intCaffeinePerDay = 250;
+			this.intCaffeineStartHour = 7;
+			this.intCaffeineEndHour = 19;
+			this.intCaffeineInShot = 40;
+			this.intCaffeineInCup = 80;
+			
+			this.intWaterPerDay = 3;
+			this.intWaterStartHour = 7;
+			this.intWaterEndHour = 19;
+			this.intWaterLittleDrink = 40;
+		}
+		
 		save() {
-			$.ajax({
-				type: "POST",
-				url: 'data.php',
-				data: {
-					'save': JSON.stringify(this)
-				},
-				success: function (data) {},
-				failure: function () {
-					message('not saved.', 'red');
-				}
-			});
+			if(typeof Storage !== 'undefined') {
+				// local storage is available for this browser.
+				localStorage.health = JSON.stringify(this);
+			} else {
+				message('Session saving is not available with this browser. Data will be local only to this one tab, and will be lost upon reloading.');
+			}
 		}
 		
 		reset() {
 			if (confirm('reset?')) {
-				this.constructor(true);
+				this.setDefaults();
+				this.setSettings();
+				this.save();
 				message('reset', 'red');
 			}
 		}
 		
-		setOptions() {
-			this.bShowCaffeine = $('#bShowCaffeine').is(':checked');
-			this.bShowWater = $('#bShowWater').is(':checked');
-			this.bShowDayPercent = $('#bShowDayPercent').is(':checked');
-			this.bShowCaloriePercent = $('#bShowCaloriePercent').is(':checked');
-			this.intCaloriesPerDay = parseInt($('#intCaloriesPerDay').val());
-			this.intCalorieStartHour = parseInt($('#intCalorieStartHour').val());
-			this.intCalorieEndHour = parseInt($('#intCalorieEndHour').val());
+		setSettings() {
+			$('.setting').each((function(index, setting) {
+				if($(setting).prop('type') == 'checkbox') {
+					$(setting).prop('checked', this[$(setting).prop('name')]);
+				} else {
+					$(setting).val(this[$(setting).prop('name')]);
+				}
+			}).bind(this));
+		}
+		
+		updateSettings() {
+			$('.setting').each((function(index, setting) {
+				if($(setting).prop('type') == 'checkbox') {
+					this[$(setting).prop('name')] = $(setting).is(':checked');
+				} else {
+					this[$(setting).prop('name')] = $(setting).val();
+				}
+			}).bind(this));
 			this.save();
 			this.update();
 		}
@@ -261,8 +301,8 @@
 			if(this.bShowWater) {
 				let water = $('#water');
 				$('#water-container').show();
-				let water_left = Math.round(Math.round(0 - percent(WATER_START, WATER_END)
-					* (WATER_PER_DAY * 1000))
+				let water_left = Math.round(Math.round(0 - percent(this.intWaterStartHour, this.intWaterEndHour)
+					* (this.intWaterPerDay * 1000))
 					+ this.current_water * 100) / 100;
 				water_left = water_left.toFixed(2);
 				water.html(water_left);
@@ -277,7 +317,7 @@
 			if(this.bShowCaffeine) {
 				$('#caffeine-container').show();
 				let caffeine_left = Math.round(
-						(-Math.round(percent(CAFF_START, CAFF_END) * CAFFEINE_PER_DAY) / 100
+						(-Math.round(percent(this.intCaffeineStartHour, this.intCaffeineEndHour) * this.intCaffeinePerDay) / 100
 						+ this.current_caffeine) * 100 ) / 100;
 				caffeine_left = caffeine_left.toFixed(2);
 				caff.html(caffeine_left);
@@ -294,6 +334,39 @@
 			} else {
 				$('#day-percent-container').hide();
 			}
+			
+			if(this.bShowLabels) {
+				$('.label').show();
+			} else {
+				$('.label').hide();
+			}
+		}
+		
+		handleCalorieButton(event) {
+			if ($(event.target).html() === '-') {
+				this.current_calories -= parseInt($('#calorie_interval').val());
+			}
+			else this.current_calories += parseInt($('#calorie_interval').val());
+			this.save();
+			this.update();
+		}
+		
+		handleWaterButton(event) {
+			let amount = this.intWaterLittleDrink;
+			if ($(event.target).html().includes('-')) amount = -amount;
+			this.current_water += amount;
+			this.save();
+			this.update();
+		}
+		
+		handleCaffeineButton(event) {
+			let amount;
+			if ($(event.target).html().includes('shot')) amount = this.intCaffeineInShot;
+			if ($(event.target).html().includes('cup')) amount = this.intCaffeineInCup;
+			if ($(event.target).html().includes('-')) amount = -amount;
+			this.current_caffeine += amount;
+			this.save();
+			this.update();
 		}
 	}
 
@@ -310,7 +383,7 @@
 	}
 	
 	$(function() {
-		H = new Data();
+		window.H = new Data();
 	});
 </script>
 
