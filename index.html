@@ -361,7 +361,7 @@
 		handleWaterButton(event) {
 			let amount = this.intWaterLittleDrink;
 			if ($(event.target).html().includes('-')) amount = -amount;
-			this.current_water += amount;
+			this.current_water += parseInt(amount);
 			this.save();
 			this.update();
 		}
@@ -371,7 +371,7 @@
 			if ($(event.target).html().includes('shot')) amount = this.intCaffeineInShot;
 			if ($(event.target).html().includes('cup')) amount = this.intCaffeineInCup;
 			if ($(event.target).html().includes('-')) amount = -amount;
-			this.current_caffeine += amount;
+			this.current_caffeine += parseInt(amount);
 			this.save();
 			this.update();
 		}
