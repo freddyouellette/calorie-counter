@@ -42,13 +42,15 @@
 	<div id="main" style="min-height:100vh;">
 		<div id="messages"></div>
 		
-		<div class="label">Calories:</div>
-		<div id="calories" class="counter"></div>
-		<div id="calorie-percent"></div>
-		<button class="calorie_button">-</button>
-		<input id='calorie_interval' style="text-align:center;" type="text" size="10" value="150" />
-		<button class="calorie_button">+</button>
-		<br>
+		<div id="calorie-container">
+			<div class="label">Calories:</div>
+			<div id="calories" class="counter"></div>
+			<div id="calorie-percent"></div>
+			<button class="calorie_button">-</button>
+			<input id='calorie_interval' style="text-align:center;" type="text" size="10" value="150" />
+			<button class="calorie_button">+</button>
+		</div>
+		<br/>
 		
 		<div id="caffeine-container">
 			<div class="label"><br/>Caffeine (mg):</div>
@@ -288,14 +290,19 @@
 			}
 			
 			// calories
-			let cal = $("#calories");
-			let calories_left = Math.round(
-				(Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * this.intCaloriesPerDay) / 100
-					- this.current_calories) * 100) / 100;
-			calories_left = calories_left.toFixed(2);
-			cal.html(calories_left);
-			if (calories_left < 0) cal.css('color', 'red');
-			else cal.css('color', 'green');
+			if(this.bShowCalories) {
+				let cal = $("#calories");
+				let calories_left = Math.round(
+					(Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * this.intCaloriesPerDay) / 100
+						- this.current_calories) * 100) / 100;
+				calories_left = calories_left.toFixed(2);
+				cal.html(calories_left);
+				if (calories_left < 0) cal.css('color', 'red');
+				else cal.css('color', 'green');
+				$('#calorie-container').show();
+			} else {
+				$('#calorie-container').hide();
+			}
 			
 			if(this.bShowCaloriePercent) {
 				let flCaloriePercent = Math.round(this.current_calories / this.intCaloriesPerDay * 10000) / 100;
@@ -307,7 +314,6 @@
 			// water
 			if(this.bShowWater) {
 				let water = $('#water');
-				$('#water-container').show();
 				let water_left = Math.round(Math.round(0 - percent(this.intWaterStartHour, this.intWaterEndHour)
 					* (this.intWaterPerDay * 1000))
 					+ this.current_water * 100) / 100;
@@ -315,6 +321,7 @@
 				water.html(water_left);
 				if (water_left < 0) water.css('color', 'red');
 				else water.css('color', 'green');
+				$('#water-container').show();
 			} else {
 				$('#water-container').hide();
 			}
@@ -322,7 +329,6 @@
 			// caffeine
 			let caff = $('#caffeine');
 			if(this.bShowCaffeine) {
-				$('#caffeine-container').show();
 				let caffeine_left = Math.round(
 						(-Math.round(percent(this.intCaffeineStartHour, this.intCaffeineEndHour) * this.intCaffeinePerDay) / 100
 						+ this.current_caffeine) * 100 ) / 100;
@@ -330,14 +336,15 @@
 				caff.html(caffeine_left);
 				if (caffeine_left < 0) caff.css('color', 'red');
 				else caff.css('color', 'green');
+				$('#caffeine-container').show();
 			} else {
 				$('#caffeine-container').hide();
 			}
 			
 			// percentage
 			if(this.bShowDayPercent) {
-				$('#day-percent-container').show();
 				$('#percent').html((Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
+				$('#day-percent-container').show();
 			} else {
 				$('#day-percent-container').hide();
 			}
