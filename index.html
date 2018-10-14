@@ -160,141 +160,204 @@
 		<a href="https://github.com/freddyouellette/calorie-counter" target="_blank" rel="noopener noreferrer" id="github-link">GitHub Page</a>
 		<div style="height:50px;"></div>
 	</div>
-</body>
 <script>
-	function message(string, color = 'green') {
-		$('#messages').clearQueue().finish()
-			.html(string).css('background-color', color)
-			.fadeTo(0, 1).delay(2000).fadeTo(1000, 0.001);
-	}
-
-	class Data {
-		constructor() {
-			this.save = this.save.bind(this);
-			this.setDefaults = this.setDefaults.bind(this);
-			this.setSettings = this.setSettings.bind(this);
-			this.updateSettings = this.updateSettings.bind(this);
-			this.update = this.update.bind(this);
-			this.reset = this.reset.bind(this);
-			this.handleCalorieButton = this.handleCalorieButton.bind(this);
-			this.handleWaterButton = this.handleWaterButton.bind(this);
-			this.handleCaffeineButton = this.handleCaffeineButton.bind(this);
-			
-			this.setDefaults();
-			
-			if(typeof Storage !== 'undefined') {
-				// local storage is available for this browser.
-				if(typeof localStorage.health !== 'undefined') {
-					// found a record for this storage.
-					var data = JSON.parse(localStorage.health);
-					if(data !== 'false') {
-						Object.assign(this, data);
-					} else {
-						message('new session');
-					}
-				}
-			} else {
-				message('Session saving is not available with this browser. Data will be local only to this one tab, and will be lost upon reloading.');
-			}
-			
-			this.update();
-			this.save();
-			this.setSettings();
-			
-			$('.calorie_button').click(this.handleCalorieButton);
-			$('.water_button').click(this.handleWaterButton);
-			$('.caff_button').click(this.handleCaffeineButton);
-			$('.setting').change(this.updateSettings);
-			$('#reset').click(this.reset);
-			
-			window.setInterval(this.update, this.intIntervalMilliseconds);
-		}
+	$(function () {
+		var message, 
+			overwriteObject, 
+			DataStorage, 
+			saveSettings, 
+			percent, 
+			setDefaults, 
+			startEventHandlers,
+			rerenderSettings, 
+			reset, 
+			updateSettings, 
+			update, 
+			handleCalorieButton,
+			handleWaterButton,
+			handleCaffeineButton;
 		
-		setDefaults() {
-			this.day = new Date();
-			this.current_calories = 0;
-			this.current_water = 0;
-			this.current_caffeine = 0;
+		var settings = {};
+		var defaultSettings = {
+			day: new Date(),
+			current_calories: 0,
+			current_water: 0,
+			current_caffeine: 0,
 			
 			// set defaults
-			this.bShowCalories = true;
-			this.bShowLabels = true;
-			this.bShowCaffeine = false;
-			this.bShowWater = true;
-			this.bShowDayPercent = false;
-			this.bShowCaloriePercent = false;
-			this.intIntervalMilliseconds = 1000;
+			bShowCalories: true,
+			bShowLabels: true,
+			bShowCaffeine: false,
+			bShowWater: true,
+			bShowDayPercent: false,
+			bShowCaloriePercent: false,
+			intIntervalMilliseconds: 1000,
 			
-			this.intCaloriesPerDay = 1900;
-			this.intCalorieStartHour = 7;
-			this.intCalorieEndHour = 19;
+			intCaloriesPerDay: 1900,
+			intCalorieStartHour: 7,
+			intCalorieEndHour: 19,
 			
-			this.intCaffeinePerDay = 250;
-			this.intCaffeineStartHour = 7;
-			this.intCaffeineEndHour = 19;
-			this.intCaffeineInShot = 40;
-			this.intCaffeineInCup = 80;
+			intCaffeinePerDay: 250,
+			intCaffeineStartHour: 7,
+			intCaffeineEndHour: 19,
+			intCaffeineInShot: 40,
+			intCaffeineInCup: 80,
 			
-			this.intWaterPerDay = 3;
-			this.intWaterStartHour = 7;
-			this.intWaterEndHour = 19;
-			this.intWaterLittleDrink = 40;
+			intWaterPerDay: 3,
+			intWaterStartHour: 7,
+			intWaterEndHour: 19,
+			intWaterLittleDrink: 40
+		};
+		
+		message = function(string, color) {
+			color = color || 'green';
+			$('#messages').clearQueue().finish()
+				.html(string).css('background-color', color)
+				.fadeTo(0, 1).delay(2000).fadeTo(1000, 0.001);
 		}
 		
-		save() {
-			if(typeof Storage !== 'undefined') {
-				// local storage is available for this browser.
-				localStorage.health = JSON.stringify(this);
-			} else {
-				message('Session saving is not available with this browser. Data will be local only to this one tab, and will be lost upon reloading.');
+		// polyfill for Object.assign()
+		overwriteObject = function(originalObj, newObj) {
+			for(var prop in newObj) {
+				originalObj[prop] = newObj[prop];
 			}
+			return originalObj;
 		}
 		
-		reset() {
+		DataStorage = (function(storageName) {
+			var localStorageManager = {
+				save: function(data) {
+					localStorage[storageName] = JSON.stringify(data);
+				},
+				load: function() {
+					try {
+						var data = JSON.parse(localStorage[storageName]);
+						return data;
+					} catch(error) {
+						message('new session', 'red');
+						return {};
+					}
+				}
+			}
+			
+			var cookieManager = {
+				save: function(data) {
+					var expiryDate = new Date();
+					expiryDate.setHours(0,0,0,0);
+					expiryDate.setDate(expiryDate.getDate() + 10); // ten days at 00:00:00
+					var cookieExpiry = 'expires=' + expiryDate.toGMTString() + '; ';
+					var cookieString = escape(storageName) + '=' + escape(JSON.stringify(data)) + '; ';
+					document.cookie = cookieString + cookieExpiry;
+				},
+				load: function() {
+					try {
+						var rawCookie = document.cookie.split('; ');
+						var cookieData = [];
+						for(var index = 0; index < rawCookie.length; index++) {
+							if(rawCookie[index].length) {
+								var parts = rawCookie[index].split('=');
+								cookieData[parts[0]] = parts[1];
+							}
+						}
+						if(cookieData[storageName]) {
+							console.log(JSON.parse(unescape(cookieData[storageName])));
+							return JSON.parse(unescape(cookieData[storageName]));
+						} else {
+							return {};
+						}
+					} catch(error) {
+						console.log('cookie validation failed.');
+						console.log(error);
+						return {};
+					};
+				}
+			}
+			
+			// test if we have localStorage
+			var test = 'localStorageTest';
+			try {
+				localStorage.setItem(test, test);
+				localStorage.removeItem(test);
+				return localStorageManager;
+			} catch(error) {
+				// fall back to using cookies
+				return cookieManager;
+			}
+		})('health');
+		
+		saveSettings = function() {
+			DataStorage.save(settings);
+		}
+		
+		percent = function(starthour, endhour) {
+			var now = new Date();
+			var nowseconds = now.getHours() * 60 * 60
+				+ now.getMinutes() * 60 + now.getSeconds()
+				+ now.getMilliseconds() / 1000;
+			var p = Math.round((nowseconds - starthour * 60 * 60) * 100
+				/ (endhour * 60 * 60 - starthour * 60 * 60) * 1000) / 1000;
+			if (p < 0) p = 0;
+			if (p > 100) p = 100;
+			return p;
+		}
+		
+		setDefaults = function() {
+			settings = overwriteObject(settings, defaultSettings);
+		}
+		
+		startEventHandlers = function() {
+			$('.calorie_button').click(handleCalorieButton);
+			$('.water_button').click(handleWaterButton);
+			$('.caff_button').click(handleCaffeineButton);
+			$('.setting').change(updateSettings);
+			$('#reset').click(reset);
+		}
+		
+		reset = function() {
 			if (confirm('reset?')) {
-				this.setDefaults();
-				this.setSettings();
-				this.save();
+				setDefaults();
+				rerenderSettings();
+				saveSettings();
 				message('reset', 'red');
 			}
 		}
 		
-		setSettings() {
-			$('.setting').each((function(index, setting) {
+		rerenderSettings = function() {
+			$('.setting').each(function(index, setting) {
 				if($(setting).prop('type') == 'checkbox') {
-					$(setting).prop('checked', this[$(setting).prop('name')]);
+					$(setting).prop('checked', settings[$(setting).prop('name')]);
 				} else {
-					$(setting).val(this[$(setting).prop('name')]);
+					$(setting).val(settings[$(setting).prop('name')]);
 				}
-			}).bind(this));
+			});
 		}
 		
-		updateSettings() {
-			$('.setting').each((function(index, setting) {
+		updateSettings = function() {
+			$('.setting').each(function(index, setting) {
 				if($(setting).prop('type') == 'checkbox') {
-					this[$(setting).prop('name')] = $(setting).is(':checked');
+					settings[$(setting).prop('name')] = $(setting).is(':checked');
 				} else {
-					this[$(setting).prop('name')] = $(setting).val();
+					settings[$(setting).prop('name')] = $(setting).val();
 				}
-			}).bind(this));
-			this.save();
-			this.update();
+			});
+			saveSettings();
+			update();
 		}
 		
-		update() {
-			if (new Date(this.day).toDateString()
+		update = function() {
+			if (new Date(settings.day).toDateString()
 				!== new Date().toDateString()) {
-				this.day = new Date();
-				this.current_calories = 0;
-				this.current_water = 0;
+				settings.day = new Date();
+				settings.current_calories = 0;
+				settings.current_water = 0;
 			}
 			
 			// calories
-			if(this.bShowCalories) {
-				let cal = $("#calories");
-				let calories_left = Math.round(
-					(Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * this.intCaloriesPerDay) / 100
-						- this.current_calories) * 100) / 100;
+			if(settings.bShowCalories) {
+				var cal = $("#calories");
+				var calories_left = Math.round(
+					(Math.round(percent(settings.intCalorieStartHour, settings.intCalorieEndHour) * settings.intCaloriesPerDay) / 100
+						- settings.current_calories) * 100) / 100;
 				calories_left = calories_left.toFixed(2);
 				cal.html(calories_left);
 				if (calories_left < 0) cal.css('color', 'red');
@@ -304,19 +367,19 @@
 				$('#calorie-container').hide();
 			}
 			
-			if(this.bShowCaloriePercent) {
-				let flCaloriePercent = Math.round(this.current_calories / this.intCaloriesPerDay * 10000) / 100;
-				$('#calorie-percent').show().html('('+this.current_calories+' / '+this.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
+			if(settings.bShowCaloriePercent) {
+				var flCaloriePercent = Math.round(settings.current_calories / settings.intCaloriesPerDay * 10000) / 100;
+				$('#calorie-percent').show().html('('+settings.current_calories+' / '+settings.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
 			} else {
 				$('#calorie-percent').hide();
 			}
 			
 			// water
-			if(this.bShowWater) {
-				let water = $('#water');
-				let water_left = Math.round(Math.round(0 - percent(this.intWaterStartHour, this.intWaterEndHour)
-					* (this.intWaterPerDay * 1000))
-					+ this.current_water * 100) / 100;
+			if(settings.bShowWater) {
+				var water = $('#water');
+				var water_left = Math.round(Math.round(0 - percent(settings.intWaterStartHour, settings.intWaterEndHour)
+					* (settings.intWaterPerDay * 1000))
+					+ settings.current_water * 100) / 100;
 				water_left = water_left.toFixed(2);
 				water.html(water_left);
 				if (water_left < 0) water.css('color', 'red');
@@ -327,11 +390,11 @@
 			}
 			
 			// caffeine
-			let caff = $('#caffeine');
-			if(this.bShowCaffeine) {
-				let caffeine_left = Math.round(
-						(-Math.round(percent(this.intCaffeineStartHour, this.intCaffeineEndHour) * this.intCaffeinePerDay) / 100
-						+ this.current_caffeine) * 100 ) / 100;
+			var caff = $('#caffeine');
+			if(settings.bShowCaffeine) {
+				var caffeine_left = Math.round(
+						(-Math.round(percent(settings.intCaffeineStartHour, settings.intCaffeineEndHour) * settings.intCaffeinePerDay) / 100
+						+ settings.current_caffeine) * 100 ) / 100;
 				caffeine_left = caffeine_left.toFixed(2);
 				caff.html(caffeine_left);
 				if (caffeine_left < 0) caff.css('color', 'red');
@@ -342,63 +405,57 @@
 			}
 			
 			// percentage
-			if(this.bShowDayPercent) {
-				$('#percent').html((Math.round(percent(this.intCalorieStartHour, this.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
+			if(settings.bShowDayPercent) {
+				$('#percent').html((Math.round(percent(settings.intCalorieStartHour, settings.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
 				$('#day-percent-container').show();
 			} else {
 				$('#day-percent-container').hide();
 			}
 			
-			if(this.bShowLabels) {
+			if(settings.bShowLabels) {
 				$('.label').show();
 			} else {
 				$('.label').hide();
 			}
 		}
 		
-		handleCalorieButton(event) {
+		handleCalorieButton = function(event) {
 			if ($(event.target).html() === '-') {
-				this.current_calories -= parseInt($('#calorie_interval').val());
+				settings.current_calories -= parseInt($('#calorie_interval').val());
 			}
-			else this.current_calories += parseInt($('#calorie_interval').val());
-			this.save();
-			this.update();
+			else settings.current_calories += parseInt($('#calorie_interval').val());
+			saveSettings();
+			update();
 		}
 		
-		handleWaterButton(event) {
-			let amount = this.intWaterLittleDrink;
+		handleWaterButton = function(event) {
+			var amount = settings.intWaterLittleDrink;
 			if ($(event.target).html().includes('-')) amount = -amount;
-			this.current_water += parseInt(amount);
-			this.save();
-			this.update();
+			settings.current_water += parseInt(amount);
+			saveSettings();
+			update();
 		}
 		
-		handleCaffeineButton(event) {
-			let amount;
-			if ($(event.target).html().includes('shot')) amount = this.intCaffeineInShot;
-			if ($(event.target).html().includes('cup')) amount = this.intCaffeineInCup;
+		handleCaffeineButton = function(event) {
+			var amount;
+			if ($(event.target).html().includes('shot')) amount = settings.intCaffeineInShot;
+			if ($(event.target).html().includes('cup')) amount = settings.intCaffeineInCup;
 			if ($(event.target).html().includes('-')) amount = -amount;
-			this.current_caffeine += parseInt(amount);
-			this.save();
-			this.update();
+			settings.current_caffeine += parseInt(amount);
+			saveSettings();
+			update();
 		}
-	}
-
-	function percent(starthour, endhour) {
-		let now = new Date();
-		let nowseconds = now.getHours() * 60 * 60
-			+ now.getMinutes() * 60 + now.getSeconds()
-			+ now.getMilliseconds() / 1000;
-		let p = Math.round((nowseconds - starthour * 60 * 60) * 100
-			/ (endhour * 60 * 60 - starthour * 60 * 60) * 1000) / 1000;
-		if (p < 0) p = 0;
-		if (p > 100) p = 100;
-		return p;
-	}
-	
-	$(function() {
-		window.H = new Data();
+		
+		setDefaults();
+		settings = overwriteObject(settings, DataStorage.load());
+		
+		update();
+		saveSettings();
+		rerenderSettings();
+		startEventHandlers();
+		
+		setInterval(update, settings.intIntervalMilliseconds);
 	});
 </script>
-
+</body>
 </html>
