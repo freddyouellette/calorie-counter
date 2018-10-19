@@ -422,9 +422,9 @@
 		
 		handleCalorieButton = function(event) {
 			if ($(event.target).html() === '-') {
-				settings.current_calories -= parseInt($('#calorie_interval').val());
+				settings.current_calories -= parseInt($('#calorie_interval').val()) || 0;
 			}
-			else settings.current_calories += parseInt($('#calorie_interval').val());
+			else settings.current_calories += parseInt($('#calorie_interval').val()) || 0;
 			saveSettings();
 			update();
 		}
@@ -432,16 +432,16 @@
 		handleWaterButton = function(event) {
 			var amount = settings.intWaterLittleDrink;
 			if ($(event.target).html().includes('-')) amount = -amount;
-			settings.current_water += parseInt(amount);
+			settings.current_water += parseInt(amount) || 0;
 			saveSettings();
 			update();
 		}
 		
 		handleCaffeineButton = function(event) {
 			var amount;
-			if ($(event.target).html().includes('shot')) amount = settings.intCaffeineInShot;
-			if ($(event.target).html().includes('cup')) amount = settings.intCaffeineInCup;
-			if ($(event.target).html().includes('-')) amount = -amount;
+			if ($(event.target).html().includes('shot')) amount = parseInt(settings.intCaffeineInShot) || 0;
+			if ($(event.target).html().includes('cup')) amount = parseInt(settings.intCaffeineInCup) || 0;
+			if ($(event.target).html().includes('-')) amount = parseInt(-amount) || 0;
 			settings.current_caffeine += parseInt(amount);
 			saveSettings();
 			update();
