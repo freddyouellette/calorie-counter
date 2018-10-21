@@ -371,7 +371,7 @@
 			
 			if(settings.bShowCaloriePercent) {
 				var flCaloriePercent = Math.round(settings.current_calories / settings.intCaloriesPerDay * 10000) / 100;
-				$('#calorie-percent').show().html('('+settings.current_calories+' / '+settings.intCaloriesPerDay+' | '+flCaloriePercent+'%)<br/><br/>');
+				$('#calorie-percent').show().html('('+settings.current_calories+' / '+(settings.intCaloriesPerDay - settings.current_calories)+' | '+flCaloriePercent+'%)<br/><br/>');
 			} else {
 				$('#calorie-percent').hide();
 			}
