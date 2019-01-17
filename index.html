@@ -37,6 +37,12 @@
 		#github-link:hover {
 			text-decoration:underline;
 		}
+		.quickFillDeleteButton {
+			border-radius:10px;
+		}
+		.quickFillButton {
+			margin:3px;
+		}
     </style>
 </head>
 
@@ -51,6 +57,7 @@
 			<button class="calorie_button">-</button>
 			<input id='calorie_interval' style="text-align:center;" type="text" size="10" value="150" />
 			<button class="calorie_button">+</button>
+			<div id="quickFillButtons" style="margin:20px auto 20px auto; width:300px;"></div>
 		</div>
 		<br/>
 		
@@ -137,6 +144,16 @@
 			<label for="intCaffeineInCup">Caffeine in cup (milligrams):</label>
 			<input type="text" id="intCaffeineInCup" class="setting" name="intCaffeineInCup"/>
 		</div>
+		<div>
+			<input type="checkbox" id="bShowQuickFill" class="setting" name="bShowQuickFill"/>
+			<label for="bShowQuickFill">Show Quick Fill</label>
+		</div>
+		<div>
+			<label for="quickFill">Quick-fill:</label>
+			<input type="text" id="quickFill" name="quickFill"/>
+			<input type="button" id="quickFillAddButton" value="+"/>
+		</div>
+		<div id="quickFillDeleteButtons" style="width:300px; margin:10px auto 10px;"></div>
 		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
 		<div>
 			<label for="intWaterPerDay">Water Per Day (litres):</label>
@@ -177,7 +194,11 @@
 			update, 
 			handleCalorieButton,
 			handleWaterButton,
-			handleCaffeineButton;
+			handleCaffeineButton,
+			setupQuickFillButtons,
+			handleQuickFillAdd,
+			handleQuickFill,
+			handleQuickFillAddDelete;
 		
 		var settings = {};
 		var defaultSettings = {
@@ -188,6 +209,7 @@
 			
 			// set defaults
 			bShowCalories: true,
+			bShowQuickFill: true,
 			bShowLabels: true,
 			bShowCaffeine: false,
 			bShowWater: true,
@@ -208,7 +230,8 @@
 			intWaterPerDay: 3,
 			intWaterStartHour: 7,
 			intWaterEndHour: 19,
-			intWaterLittleDrink: 40
+			intWaterLittleDrink: 40,
+			quickFill: [],
 		};
 		
 		message = function(string, color) {
@@ -312,6 +335,7 @@
 			$('.water_button').click(handleWaterButton);
 			$('.caff_button').click(handleCaffeineButton);
 			$('.setting').change(updateSettings);
+			$('#quickFillAddButton').click(handleQuickFillAdd);
 			$('#reset').click(reset);
 		}
 		
@@ -406,6 +430,12 @@
 				$('#caffeine-container').hide();
 			}
 			
+			if(settings.bShowQuickFill) {
+				$('#quickFillButtons').show();
+			} else {
+				$('#quickFillButtons').hide();
+			}
+			
 			// percentage
 			if(settings.bShowDayPercent) {
 				$('#percent').html((Math.round(percent(settings.intCalorieStartHour, settings.intCalorieEndHour) * 100) / 100).toFixed(2) + '%');
@@ -448,6 +478,41 @@
 			update();
 		}
 		
+		setupQuickFillButtons = function(event) {
+			$('#quickFillButtons, #quickFillDeleteButtons').html('');
+			$.each(settings.quickFill, function(index, value) {
+				if(value) {
+					$('#quickFillButtons').append('<button class="quickFillButton">' + value + '</button>');
+					$('#quickFillDeleteButtons').append('<button class="quickFillDeleteButton" data-value="' + value + '">&#10006; ' + value + '</button>');
+				}
+			});
+			$('.quickFillButton').unbind().click(handleQuickFill);
+			$('.quickFillDeleteButton').unbind().click(handleQuickFillDelete);
+		}
+		
+		handleQuickFillAdd = function() {
+			var newQuickFill = parseInt($('#quickFill').val());
+			if(newQuickFill) {
+				if(!settings['quickFill'].includes(newQuickFill)) {
+					settings['quickFill'].push(newQuickFill);
+					saveSettings();
+					setupQuickFillButtons();
+				}
+			}
+		}
+		
+		handleQuickFill = function(action) {
+			$('#calorie_interval').val($(action.target).html()) ;
+		}
+		
+		handleQuickFillDelete = function(action) {
+			var quickFillToDelete = parseInt($(action.target).attr('data-value'));
+			var index = settings['quickFill'].indexOf(quickFillToDelete);
+			delete(settings['quickFill'][index]);
+			saveSettings();
+			setupQuickFillButtons();
+		}
+		
 		setDefaults();
 		settings = overwriteObject(settings, DataStorage.load());
 		
@@ -455,6 +520,7 @@
 		saveSettings();
 		rerenderSettings();
 		startEventHandlers();
+		setupQuickFillButtons();
 		
 		setInterval(update, settings.intIntervalMilliseconds);
 	});
