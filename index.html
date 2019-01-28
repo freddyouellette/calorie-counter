@@ -129,7 +129,11 @@
 				<label for="bShowQuickFill">Show Quick Fill</label>
 			</div>
 			<div>
-				<label for="quickFill">Quick-fill:</label>
+				<input type="checkbox" id="bAutoAddQuickFill" class="setting" name="bAutoAddQuickFill"/>
+				<label for="bAutoAddQuickFill">Auto-Add to Quick-Fill</label>
+			</div>
+			<div>
+				<label for="quickFill">Quick-Fill:</label>
 				<input type="text" id="quickFill" name="quickFill"/>
 				<input type="button" id="quickFillAddButton" value="+"/>
 			</div>
@@ -156,16 +160,6 @@
 			<label for="intCaffeineInCup">Caffeine in cup (milligrams):</label>
 			<input type="text" id="intCaffeineInCup" class="setting" name="intCaffeineInCup"/>
 		</div>
-		<div>
-			<input type="checkbox" id="bShowQuickFill" class="setting" name="bShowQuickFill"/>
-			<label for="bShowQuickFill">Show Quick Fill</label>
-		</div>
-		<div>
-			<label for="quickFill">Quick-fill:</label>
-			<input type="text" id="quickFill" name="quickFill"/>
-			<input type="button" id="quickFillAddButton" value="+"/>
-		</div>
-		<div id="quickFillDeleteButtons" style="width:300px; margin:10px auto 10px;"></div>
 		<div>- - - - - - - - - - - - - - - - - - - - - - - - - -</div>
 		<div>
 			<label for="intWaterPerDay">Water Per Day (litres):</label>
@@ -227,6 +221,7 @@
 			bShowWater: true,
 			bShowDayPercent: false,
 			bShowCaloriePercent: false,
+			bAutoAddQuickFill: true,
 			intIntervalMilliseconds: 1000,
 			
 			intCaloriesPerDay: 1900,
@@ -464,10 +459,15 @@
 		}
 		
 		handleCalorieButton = function(event) {
+			var calorie_value = parseInt($('#calorie_interval').val());
 			if ($(event.target).html() === '-') {
-				settings.current_calories -= parseInt($('#calorie_interval').val()) || 0;
+				settings.current_calories -= calorie_value || 0;
 			}
-			else settings.current_calories += parseInt($('#calorie_interval').val()) || 0;
+			else settings.current_calories += calorie_value || 0;
+			
+			if(settings.bAutoAddQuickFill) {
+				addQuickFill(calorie_value);
+			}
 			saveSettings();
 			update();
 		}
@@ -502,19 +502,23 @@
 			$('.quickFillDeleteButton').unbind().click(handleQuickFillDelete);
 		}
 		
+		addQuickFill = function(newQuickFill) {
+			if(!settings['quickFill'].includes(newQuickFill)) {
+				settings['quickFill'].push(newQuickFill);
+				saveSettings();
+				setupQuickFillButtons();
+			}
+		}
+		
 		handleQuickFillAdd = function() {
 			var newQuickFill = parseInt($('#quickFill').val());
 			if(newQuickFill) {
-				if(!settings['quickFill'].includes(newQuickFill)) {
-					settings['quickFill'].push(newQuickFill);
-					saveSettings();
-					setupQuickFillButtons();
-				}
+				addQuickFill(newQuickFill);
 			}
 		}
 		
 		handleQuickFill = function(action) {
-			$('#calorie_interval').val($(action.target).html()) ;
+			$('#calorie_interval').val($(action.target).html());
 		}
 		
 		handleQuickFillDelete = function(action) {
